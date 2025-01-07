@@ -1,4 +1,4 @@
-name: Docker-build-with-evidence
+name: ptfl-build-with-evidence
 
 on:
   [workflow_dispatch]
@@ -11,7 +11,7 @@ jobs:
   Docker-build-with-evidence:
     runs-on: ubuntu-latest
     env:
-      REPO_NAME: ptfl-oci-local-dev
+      REPO_NAME: ptfl-oci-dev-local
 
     steps:
 
