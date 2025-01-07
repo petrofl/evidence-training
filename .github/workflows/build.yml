@@ -9,6 +9,7 @@ permissions:
 
 jobs:
   Docker-build-with-evidence:
+    environment: Jfrog
     runs-on: ubuntu-latest
     env:
       REPO_NAME: ptfl-oci-dev-local
