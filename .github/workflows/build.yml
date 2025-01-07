@@ -26,6 +26,7 @@ jobs:
       - name: Build Docker image
         run: |
           URL=$(echo ${{ vars.ARTIFACTORY_URL }} | sed 's|^https://||')
+          echo ${URL}
           REPO_URL=${URL}/${REPO_NAME}
           echo ${REPO_URL}
           docker build -t ${REPO_URL}/example-go-app:${{ github.run_number }} .
