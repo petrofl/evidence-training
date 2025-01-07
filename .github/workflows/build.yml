@@ -11,7 +11,7 @@ jobs:
   Docker-build-with-evidence:
     runs-on: ubuntu-latest
     env:
-      REPO_NAME: evidence-demo-docker-dev
+      REPO_NAME: ptfl-oci-local-dev
     steps:
 
       - uses: actions/checkout@v4
