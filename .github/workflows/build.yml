@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REPO_NAME: ptfl-oci-dev-local
+      JF_PROJECT: ptfl 
 
     steps:
 
@@ -31,24 +32,24 @@ jobs:
           REPO_URL=${URL}/${REPO_NAME}
           echo ${REPO_URL}
           docker build -t ${REPO_URL}/example-go-app:${{ github.run_number }} .
-          jf docker push ${REPO_URL}/example-go-app:${{ github.run_number }}
+          jf docker push ${REPO_URL}/example-go-app:${{ github.run_number }} --project ${JF_PROJECT}
 
       - name: Evidence on docker
         run: |
           echo '{ "actor": "${{ github.actor }}", "date": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'" }' > sign.json
           jf evd create --package-name example-go-app --package-version ${{ github.run_number }} --package-repo-name ${REPO_NAME} \
-          --key "${{ secrets.PRIVATE_KEY }}" --key-alias ${{ secrets.KEY_ALIAS }} \
+          --key "${{ secrets.PRIVATE_KEY }}" --key-alias ${{ secrets.KEY_ALIAS }} --project ${JF_PROJECT}\
           --predicate ./sign.json --predicate-type https://jfrog.com/evidence/signature/v1 
           echo '🔎 Evidence attached: `signature` 🔏 ' 
 
       - name: Collecting Information from Git
-        run: jf rt build-add-git
+        run: jf rt build-add-git --project ${JF_PROJECT}
 
       - name: Collecting Environment Variables
-        run: jf rt build-collect-env
+        run: jf rt build-collect-env --project ${JF_PROJECT}
 
       - name: Publish build info
-        run: jfrog rt build-publish
+        run: jfrog rt build-publish --project ${JF_PROJECT}
         
       - name: Sign build evidence
         run: |
@@ -61,7 +62,7 @@ jobs:
       - name: Create release bundle
         run: |
           echo '{ "files": [ {"build": "'"${{ github.workflow }}/${{ github.run_number }}"'" } ] }' > bundle-spec.json
-          jf release-bundle-create ${{ github.actor }}-evidence-training ${{ github.run_number }} --signing-key ${{ secrets.RB_KEY }} --spec bundle-spec.json --sync=true
+          jf release-bundle-create ${{ github.actor }}-evidence-training ${{ github.run_number }} --signing-key ${{ secrets.RB_KEY }} --spec bundle-spec.json --sync=true --project ${JF_PROJECT}
           VER_LINK=${{ vars.ARTIFACTORY_URL }}'/ui/artifactory/lifecycle/?bundleName='${{ github.actor }}-evidence-training'&bundleToFlash='${{ github.actor }}-evidence-training'&releaseBundleVersion='${{ github.run_number }}'&repositoryKey=release-bundles-v2&activeKanbanTab=promotion'
           echo '📦 Release bundle ['${{ github.actor }}-evidence-training:${{ github.run_number }}']('${VER_LINK}') created' >> $GITHUB_STEP_SUMMARY
 
