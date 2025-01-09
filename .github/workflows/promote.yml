@@ -48,7 +48,7 @@ jobs:
       - name: Promote to Test
         run: |
           if [ "${{ env.RESULT }}" == "true" ]; then
-            jf release-bundle-promote ${{ github.actor }}-evidence-training ${{ inputs.rb-version }} QA --signing-key ${{ secrets.RB_KEY }} --sync=true --project ${{env.JF_PROJECT}}
+            jf release-bundle-promote ${{ github.actor }}-evidence-training ${{ inputs.rb-version }} QA --signing-key ${{ secrets.RB_KEY }} --sync=true --project ${JF_PROJECT}
             echo "🚀 Succesfully promoted to \`QA\` environemnt" >> $GITHUB_STEP_SUMMARY
           else
             opa eval --input ./evidence_graph.json --data policy/policy.rego "data.policy.output" | jq '.result[0].expressions[0].value'
