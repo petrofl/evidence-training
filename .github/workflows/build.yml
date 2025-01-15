@@ -55,7 +55,7 @@ jobs:
           echo '{ "actor": "${{ github.actor }}", "date": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'" }' > sign.json
           jf evd create --build-name ${{ github.workflow }} --build-number ${{ github.run_number }} \
             --predicate ./sign.json --predicate-type https://jfrog.com/evidence/build-signature/v1 \
-            --key "${{ secrets.PRIVATE_KEY }}"  --key-alias ${{ secrets.KEY_ALIAS }}
+            --key "${{ secrets.PRIVATE_KEY }}"  --key-alias ${{ secrets.KEY_ALIAS }} --project ${JF_PROJECT}
           echo '🔎 Evidence attached: `build-signature` 🔏 ' >> $GITHUB_STEP_SUMMARY
 
       - name: Create release bundle
@@ -70,5 +70,5 @@ jobs:
            echo '{ "actor": "${{ github.actor }}", "date": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'", "approved": "true" }' > rbv2_approval_evidence.json
            jf evd create --key "${{ secrets.PRIVATE_KEY }}" --key-alias ${{ secrets.KEY_ALIAS }} \
              --release-bundle ${{ github.actor }}-evidence-training --release-bundle-version ${{ github.run_number }} \
-             --predicate ./rbv2_approval_evidence.json --predicate-type https://jfrog.com/evidence/approval/v1
+             --predicate ./rbv2_approval_evidence.json --predicate-type https://jfrog.com/evidence/approval/v1 --project ${JF_PROJECT}
            echo 'Approval of Release bundle ${{ github.actor }}-evidence-training':'${{ github.run_number }} succeded' >> $GITHUB_STEP_SUMMARY
