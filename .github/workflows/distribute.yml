@@ -1,0 +1,34 @@
+name: Promote-to-qa
+on:
+  workflow_dispatch:
+    inputs:
+      rb-version:
+        description: 'Release bundle version'     
+        required: true
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  Promote-to-qa-and-test:
+    environment: Jfrog
+    runs-on: ubuntu-latest
+    env:
+      PROMOTE_REPO_NAME: ptfl1-docker
+      JF_PROJECT: ptfl1
+    steps:
+    
+      - name: Checkout
+        uses: actions/checkout@v4
+    
+      - name: Install jfrog cli
+        uses: jfrog/setup-jfrog-cli@v4
+        env:
+          JF_URL: ${{ vars.ARTIFACTORY_URL }}
+          JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+
+      - name: Distribute to Edge nodes 
+        run: |
+            echo '{ "distribution_rules": [ {"site_name": "SolEngEdgeSaaS"} ] }' > distr-rule.json  
+            jf   release-bundle-distribute --sync=true --project ${JF_PROJECT} --dist-rules=distr-rule.json ${{ github.actor }}-evd-flow ${{ inputs.rb-version }} --sync=true --project ${JF_PROJECT} 
+            echo "🚀 Succesfully promoted to \`QA\` environemnt" >> $GITHUB_STEP_SUMMARY
