@@ -1,4 +1,4 @@
-name: Promote-to-qa
+name: distribute-to-edge-nodes
 on:
   workflow_dispatch:
     inputs:
