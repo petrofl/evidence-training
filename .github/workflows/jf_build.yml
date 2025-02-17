@@ -12,7 +12,7 @@ jobs:
     environment: Jfrog-US
     runs-on: ubuntu-latest
     env:
-      REPO_NAME: ptfl2-docker
+      REPO_NAME: ptfl1-docker
       JF_PROJECT: ptfl1 
 
     steps:
