@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   Promote-to-qa-and-test:
-    environment: Jfrog
+    environment: Jfrog-US
     runs-on: ubuntu-latest
     env:
       PROMOTE_REPO_NAME: ptfl1-docker
