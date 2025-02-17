@@ -1,4 +1,4 @@
-name: ptfl-build-with-evidence
+name: ptfl1-build-with-rb
 
 on:
   [workflow_dispatch]
