@@ -1,0 +1,52 @@
+name: ptfl-build-with-evidence
+
+on:
+  [workflow_dispatch]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  Docker-build-with-evidence:
+    environment: Jfrog-US
+    runs-on: ubuntu-latest
+    env:
+      REPO_NAME: ptfl2-docker
+      JF_PROJECT: ptfl1 
+
+    steps:
+
+      - uses: actions/checkout@v4
+      
+      - name: Install jfrog cli
+        uses: jfrog/setup-jfrog-cli@v4
+        env:
+          JF_URL: ${{ vars.ARTIFACTORY_URL }}
+          JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+
+      - name: Build Docker image
+        run: |
+          URL=$(echo ${{ vars.ARTIFACTORY_URL }} | sed 's|^https://||')
+          echo ${URL}
+          REPO_URL=${URL}/${REPO_NAME}
+          echo ${REPO_URL}
+          docker build -t ${REPO_URL}/example-go-app:${{ github.run_number }} .
+          jf docker push ${REPO_URL}/example-go-app:${{ github.run_number }} --project ${JF_PROJECT}
+
+      - name: Collecting Information from Git
+        run: jf rt build-add-git --project ${JF_PROJECT}
+
+      - name: Collecting Environment Variables
+        run: jf rt build-collect-env --project ${JF_PROJECT}
+
+      - name: Publish build info
+        run: jfrog rt build-publish --project ${JF_PROJECT}
+
+      - name: Create release bundle
+        run: |
+          echo '{ "files": [ {"build": "'"${{ github.workflow }}/${{ github.run_number }}"'" , "project" : "'"${JF_PROJECT}"'" } ] }' > bundle-spec.json
+          cat  ./bundle-spec.json
+          jf release-bundle-create ${{ github.actor }}-evd-flow ${{ github.run_number }} --signing-key ${{ secrets.RB_KEY }} --spec bundle-spec.json --sync=true --project ${JF_PROJECT}
+          VER_LINK=${{ vars.ARTIFACTORY_URL }}'/ui/artifactory/lifecycle/?bundleName='${{ github.actor }}-evidence-training'&bundleToFlash='${{ github.actor }}-evd-flow'&releaseBundleVersion='${{ github.run_number }}'&repositoryKey=release-bundles-v2&activeKanbanTab=promotion'
+          echo '📦 Release bundle ['${{ github.actor }}-evd-flow:${{ github.run_number }}']('${VER_LINK}') created' >> $GITHUB_STEP_SUMMARY
