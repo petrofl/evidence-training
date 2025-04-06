@@ -34,7 +34,7 @@ jobs:
 
       # Install prerequisites
       - name: Setup Frogbot
-      - uses: jfrog/frogbot@v2
+        uses: jfrog/frogbot@v2
         env:
           # [Mandatory]
           # JFrog platform URL
